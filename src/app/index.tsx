@@ -13,6 +13,15 @@ export default function Index() {
 
   const productDatabase = useProductDatabase();
 
+  async function list() {
+    try {
+      const response = await productDatabase.searchByName(search);
+      setProducts(response);
+    } catch (error) {
+      console.log('error listing products ', error);
+    }
+  }
+
   async function create() {
     try {
 
@@ -25,22 +34,54 @@ export default function Index() {
       }
 
       const response = await productDatabase.create({ name, quantity: Number(quantity) });
-      Alert.alert('Successfully registered Product. ID: ' + response.id);
-
-      list();
+      Alert.alert('Successfully registered Product "' + name + '"');
 
     } catch (error) {
       console.log('error creating product ', error);
     }
   }
 
-  async function list() {
+  async function update() {
     try {
-      const response = await productDatabase.searchByName(search);
-      setProducts(response);
+
+      if (isNaN(Number(quantity))) {
+        return Alert.alert('Quantity', 'Must be a positive number')
+      }
+
+      if (Number(quantity) < 1) {
+        return Alert.alert("Quantity", "Must be at least 1.")
+      }
+
+      const response = await productDatabase.update({
+        id: Number(id),
+        name,
+        quantity: Number(quantity)
+      });
+
+      Alert.alert('Successfully updated "' + name + '"');
+
     } catch (error) {
-      console.log('error listing products ', error);
+      console.log('error creating product ', error);
     }
+  }
+
+  async function showDetails(item: ProductDabase) {
+    setId(String(item.id))
+    setName(item.name)
+    setQuantity(String(item.quantity))
+  }
+
+  async function handleSave() {
+    if (id) {
+      update();
+    } else {
+      create();
+    }
+
+    setId('')
+    setName('')
+    setQuantity('')
+    await list();
   }
 
   useEffect(() => {
@@ -48,19 +89,19 @@ export default function Index() {
   }, [search]);
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', padding: 30, gap: 16 }}>
+    <View style={{ justifyContent: 'center', padding: 30, gap: 16, marginTop: 45}}>
 
-      <Text style={{ fontWeight: 'bold', alignSelf: 'center', marginTop: 50 }}> NEW PRODUCT </Text>
+      <Text style={{ fontWeight: 'bold', alignSelf: 'center' }}> NEW PRODUCT </Text>
       <Input placeholder='Name' onChangeText={setName} value={name} />
       <Input placeholder='Quantity' onChangeText={setQuantity} value={quantity.toString()} />
-      <Button title='Save' onPress={create} />
+      <Button title='Save' onPress={handleSave} />
 
       <Text style={{ fontWeight: 'bold', alignSelf: 'center', marginTop: 50 }}> PRODUCTS </Text>
       <Input placeholder='Search...' onChangeText={setSearch} />
       <FlatList
         data={products}
         keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => <Product data={item} />}
+        renderItem={({ item }) => <Product data={item} onPress={() => showDetails(item)} />}
       />
 
     </View>

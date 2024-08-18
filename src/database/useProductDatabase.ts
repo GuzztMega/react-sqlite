@@ -9,6 +9,21 @@ export type ProductDabase = {
 export function useProductDatabase() {
   const database = useSQLiteContext();
 
+  async function searchByName(name: string) {
+    try {
+      const query = "SELECT * FROM product WHERE name LIKE ?";
+
+      const response = await database.getAllAsync<ProductDabase>(
+        query,
+        `%${name}%`
+      );
+
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async function create(data: Omit<ProductDabase, "id">) {
     const statement = await database.prepareAsync(
       "INSERT INTO product(name, quantity) VALUES($name, $quantity);"
@@ -30,20 +45,24 @@ export function useProductDatabase() {
     }
   }
 
-  async function searchByName(name: string) {
+  async function update(data: ProductDabase) {
+    const statement = await database.prepareAsync(
+      "UPDATE product SET name = $name , quantity = $quantity WHERE id = $id"
+    );
     try {
-      const query = "SELECT * FROM product WHERE name LIKE ?";
 
-      const response = await database.getAllAsync<ProductDabase>(
-        query,
-        `%${name}%`
-      );
+      await statement.executeAsync({
+        $id: data.id,
+        $name: data.name,
+        $quantity: data.quantity,
+      });
 
-      return response;
     } catch (error) {
       throw error;
+    } finally {
+      await statement.finalizeAsync();
     }
-  }
+  }  
 
-  return { create, searchByName };
+  return { create, searchByName, update };
 }

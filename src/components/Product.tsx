@@ -11,7 +11,7 @@ export function Product({ data, ...rest }: Props) {
     return (
         <Pressable {...rest} style={{ backgroundColor: '#CECECE', padding: 15, borderRadius: 5, marginVertical: 2, flexDirection: 'row' }}>
             <Text>
-                {data.quantity} - {data.name}
+                {data.quantity}x  |  {data.name}
             </Text>
         </Pressable>
     );
