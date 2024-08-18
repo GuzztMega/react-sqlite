@@ -64,5 +64,13 @@ export function useProductDatabase() {
     }
   }  
 
-  return { create, searchByName, update };
+  async function remove(id: number) {
+    try{
+      await database.execAsync(`DELETE FROM product WHERE id=${id}`);
+    } catch (error) {
+      throw error;
+    } 
+  }
+
+  return { create, searchByName, update, remove };
 }

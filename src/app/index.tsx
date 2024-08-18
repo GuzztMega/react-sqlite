@@ -1,8 +1,9 @@
-import { Input } from '@/components/Input';
 import { useEffect, useState } from 'react';
 import { View, Button, Alert, FlatList, Text } from 'react-native';
-import { useProductDatabase, ProductDabase } from '@/database/useProductDatabase';
+
+import { Input } from '@/components/Input';
 import { Product } from '@/components/Product';
+import { useProductDatabase, ProductDabase } from '@/database/useProductDatabase';
 
 export default function Index() {
   const [id, setId] = useState('');
@@ -34,7 +35,7 @@ export default function Index() {
       }
 
       const response = await productDatabase.create({ name, quantity: Number(quantity) });
-      Alert.alert('Successfully registered Product "' + name + '"');
+      Alert.alert(`Successfully registered Product "${name}"`);
 
     } catch (error) {
       console.log('error creating product ', error);
@@ -58,10 +59,19 @@ export default function Index() {
         quantity: Number(quantity)
       });
 
-      Alert.alert('Successfully updated "' + name + '"');
+      Alert.alert(`Successfully updated "${name}"`);
 
     } catch (error) {
       console.log('error creating product ', error);
+    }
+  }
+
+  async function remove(id: number) {
+    try {
+      await productDatabase.remove(id);
+      await list();
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -89,7 +99,7 @@ export default function Index() {
   }, [search]);
 
   return (
-    <View style={{ justifyContent: 'center', padding: 30, gap: 16, marginTop: 45}}>
+    <View style={{ justifyContent: 'center', padding: 30, gap: 16, marginTop: 45 }}>
 
       <Text style={{ fontWeight: 'bold', alignSelf: 'center' }}> NEW PRODUCT </Text>
       <Input placeholder='Name' onChangeText={setName} value={name} />
@@ -101,7 +111,13 @@ export default function Index() {
       <FlatList
         data={products}
         keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => <Product data={item} onPress={() => showDetails(item)} />}
+        renderItem={({ item }) => (
+          <Product
+            data={item}
+            onPress={() => showDetails(item)}
+            onDelete={() => remove(item.id)}
+          />
+        )}
       />
 
     </View>
