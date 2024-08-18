@@ -9,6 +9,20 @@ export type ProductDabase = {
 export function useProductDatabase() {
   const database = useSQLiteContext();
 
+  async function show(id: number){
+    try {
+      const query = 'SELECT * FROM product WHERE id = ?';
+
+      const response = await database.getFirstAsync<ProductDabase>(query, [
+        id, // posso passar mais parâmetros para busca
+      ]);
+
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async function searchByName(name: string) {
     try {
       const query = "SELECT * FROM product WHERE name LIKE ?";
@@ -72,5 +86,5 @@ export function useProductDatabase() {
     } 
   }
 
-  return { create, searchByName, update, remove };
+  return { show, searchByName, create, update, remove };
 }

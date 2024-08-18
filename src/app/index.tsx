@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Button, Alert, FlatList, Text } from 'react-native';
+import { router } from 'expo-router';
 
 import { Input } from '@/components/Input';
 import { Product } from '@/components/Product';
@@ -116,6 +117,8 @@ export default function Index() {
             data={item}
             onPress={() => showDetails(item)}
             onDelete={() => remove(item.id)}
+            // @ts-ignore
+            onShow={() => router.navigate(`/details/${item.id}`)}
           />
         )}
       />
